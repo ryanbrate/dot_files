@@ -204,7 +204,7 @@ nnoremap <Leader>9 9gt
 " ------
 " vimrc
 " ------
-nnoremap <Leader>we :e ~/.vimrc<cr>
+nnoremap <Leader>we :e ~/dot_files/.vimrc<cr>
 
 " ------
 " vimscript documentation
