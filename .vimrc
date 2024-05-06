@@ -92,7 +92,7 @@ set splitbelow
 set noerrorbells  " disable sys beep
 
 set termguicolors
-colorscheme default
+colorscheme morning
 " set background=dark
 
 " ------
