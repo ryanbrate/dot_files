@@ -38,8 +38,6 @@ nnoremap ZZ <Nop>
 
 " nnoremap <space><space> <c-^>
 
-set shellcmdflag=-ic  " shell in interactive mode to access aliases
-
 " ------
 " clipboard
 " ------
