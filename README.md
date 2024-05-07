@@ -13,3 +13,9 @@ alias fd='cd $(dirname $(fzf))'
 
 alias gitlog='git log --oneline --graph --all --decorate'
 ```
+
+## ~/.gitconfig
+```
+[diff]
+    tool = vimdiff
+```
