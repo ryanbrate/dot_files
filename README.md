@@ -16,6 +16,6 @@ alias gitlog='git log --oneline --graph --all --decorate'
 
 ## ~/.gitconfig
 ```
-[diff]
+[merge]
     tool = vimdiff
 ```
