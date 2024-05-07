@@ -181,8 +181,6 @@ command! -nargs=* VG exec len(split(<q-args>)) == 0?
 call plug#begin()
     Plug 'tpope/vim-commentary'
     Plug 'mbbill/undotree'
-    Plug 'ryanbrate/functional.vim'
-    Plug 'ryanbrate/developer_documentation.vim'
 call plug#end()
 
 " ------
@@ -281,6 +279,16 @@ function! g:Snip() abort
 endfunction
 nnoremap <Leader>sn :call Snip()<CR>
 
+function! DevDocs(ngram, call_string) abort
+
+    exec 'silent! !mkdir devdocs'
+    let call_string = substitute(a:call_string, '<ngram>', a:ngram, 'g')
+    call histadd('cmd', 'DD '.a:ngram)
+
+    exec call_string
+endfunction
+silent! command! -nargs=1 DD call DevDocs(<q-args>, b:DD_call)
+    
 "---
 " filetype-specific settings
 "---
@@ -319,21 +327,9 @@ augroup FileType python
 
     au FileType python let b:snippets_dir = '~/Projects/Snippets/python'
 
-    au FileType python let b:DD_conj = '.'
-    au FileType python let b:DD_permissible_chars = 'a-zA-Z0-9\._'
-    au FileType python let b:DD_import_patterns = [
-        \['from\s\+\(\S\+\)\s\+import\s\+\(\S\+\)\s\+as\s\+\(\S\+\)', {3:[1,2]}, 0],
-        \['from\s\+\(\S\+\)\s\+import\s\+\(\S\+\)\s*,\s*\(\S\+\)\s*,\s*\(\S\+\)', {2:[1,2], 3:[1,3], 4:[1,4], 5:[1,5]}, 0],
-        \['from\s\+\(\S\+\)\s\+import\s\+\(\S\+\)\s*,\s*\(\S\+\)\s*,\s*\(\S\+\)', {2:[1,2], 3:[1,3], 4:[1,4]}, 0],
-        \['from\s\+\(\S\+\)\s\+import\s\+\(\S\+\)\s*,\s*\(\S\+\)', {2:[1,2], 3:[1,3]}, 0],
-        \['from\s\+\(\S\+\)\s\+import\s\+\(\S\+\)', {2:[1, 2]}, 0],
-        \['from\s\+\(\S\+\)\s\+import\s\+\(\S\+\)\s*as\(\S\+\)', {3:[1, 2]}, 0],
-        \['import\s\+\(\S\+\)\s\+as\s\+\(\S\+\)', {2:[1]}, 0],
-        \['\(\S\+\)\s*:\s*\(\S\+\)', {1:[2]}, 1]
-    \]
-    au FileType python let b:DD_call = '!python3 -m pydoc <TOKEN>'
-    au FileType python let b:CC_call = "echo Filter({x->x!~'^_'}, json_decode(system('python3 -c \"import json; import <MODULE>; print(json.dumps(dir(<TOKEN>)))\"')))"
-    au FileType python nnoremap <buffer> K :DD<CR>
+    au FileType python let b:DD_call = 'let g:temp = b:DD_call | tabnew devdocs/<ngram> | let b:DD_call = g:temp | silent! read !python3 -m pydoc <ngram>'
+    " au FileType python let b:CC_call = "echo filter(json_decode(system('python3 -c \"import json; import <module>; print(json.dumps(dir(<object>)))\"')), 'v:val !~ \"^_\"')"
+    " au FileType python let b:CC_call_no_import = "echo Filter({x->x!~'^_'}, json_decode(system('python3 -c \"import json>; print(json.dumps(dir(<object>)))\"')))"
 
 augroup END
 
