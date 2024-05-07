@@ -10,12 +10,12 @@ export PATH="~/bin:$PATH"
 alias fF='cd ~;vim $(fzf); cd -'
 alias ff='vim $(fzf)'
 alias fd='cd $(dirname $(fzf))'
-
-alias gitlog='git log --oneline --graph --all --decorate'
 ```
 
 ## ~/.gitconfig
 ```
 [merge]
     tool = vimdiff
+[alias]
+    lg = log --graph --oneline
 ```
