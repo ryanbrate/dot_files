@@ -67,6 +67,7 @@ set shortmess-=S  "  switch on searh count when searching
 " ------
 set lazyredraw  " don't update screen during macro exec
 set complete -=i  " i.e, don't provide next-word completion based on included
+set complete +=t
 
 " ------
 " rendering options
