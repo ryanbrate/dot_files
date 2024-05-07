@@ -92,7 +92,7 @@ set splitbelow
 set noerrorbells  " disable sys beep
 
 set termguicolors
-colorscheme morning
+colorscheme default
 " set background=dark
 
 " ------
@@ -279,14 +279,16 @@ function! g:Snip() abort
 endfunction
 nnoremap <Leader>sn :call Snip()<CR>
 
-function! DevDocs(ngram, call_string) abort
+function! DevDocs(ngram) abort
 
-    let call_string = substitute(a:call_string, '<ngram>', a:ngram, 'g')
+    for call_string in b:DD_call
+        let call_string = substitute(call_string, '<ngram>', a:ngram, 'g')
+        exec call_string
+    endfor
     call histadd('cmd', 'DD '.a:ngram)
 
-    exec call_string
 endfunction
-silent! command! -nargs=1 DD call DevDocs(<q-args>, b:DD_call)
+silent! command! -nargs=1 DD call DevDocs(<q-args>)
     
 "---
 " filetype-specific settings
@@ -325,8 +327,7 @@ augroup FileType python
                 \]
 
     au FileType python let b:snippets_dir = '~/Projects/Snippets/python'
-
-    au FileType python let b:DD_call = 'let g:temp = b:DD_call | tabnew _<ngram> | let b:DD_call = g:temp | silent! read !python3 -m pydoc <ngram>'
+    au FileType python let b:DD_call = ['silent !python3 -m pydoc <ngram> > doc', 'e doc']
 
 augroup END
 
