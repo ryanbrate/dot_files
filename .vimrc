@@ -309,7 +309,14 @@ function! DevDocs(ngram, ft) abort
     endif
 
 endfunction
-silent! command! -nargs=1 DD call DevDocs(<q-args>, &ft)
+
+function! DevDocs_history(ArgLead, CmdLine, CursorPos) abort
+    let fp = expand('~/.vim/doc_history_'.&ft.'.json')
+    let history_list = json_decode(readfile(fp)[0])
+    return filter(history_list, 'v:val=~a:ArgLead')
+endfunction
+
+silent! command! -complete=customlist,DevDocs_history -nargs=1 DD call DevDocs(<q-args>, &ft)
 nnoremap <space><space> :b doc<CR>
     
 "---
