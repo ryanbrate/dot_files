@@ -21,8 +21,7 @@
 " https://vimways.org/2019/vim-and-the-shell/
 " :r!ls  # read in the output of a command
 " :.!sh  # execute current line in terminal and replace with stdoutput
-" :.!python3  # execute current line as python3 code, and replace with
-" stdoutput
+" :.!python3  # execute current line as python3 code, and replace with stdoutput
 " :%!sort  # replace buffer contents with sorted
 " :r!sort %  # read in stdout of a sort of the current buffer
 
