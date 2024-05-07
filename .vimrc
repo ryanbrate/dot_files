@@ -328,8 +328,6 @@ augroup FileType python
     au FileType python let b:snippets_dir = '~/Projects/Snippets/python'
 
     au FileType python let b:DD_call = 'let g:temp = b:DD_call | tabnew devdocs/<ngram> | let b:DD_call = g:temp | silent! read !python3 -m pydoc <ngram>'
-    " au FileType python let b:CC_call = "echo filter(json_decode(system('python3 -c \"import json; import <module>; print(json.dumps(dir(<object>)))\"')), 'v:val !~ \"^_\"')"
-    " au FileType python let b:CC_call_no_import = "echo Filter({x->x!~'^_'}, json_decode(system('python3 -c \"import json>; print(json.dumps(dir(<object>)))\"')))"
 
 augroup END
 
