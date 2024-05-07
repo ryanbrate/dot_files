@@ -282,7 +282,6 @@ nnoremap <Leader>sn :call Snip()<CR>
 
 function! DevDocs(ngram, call_string) abort
 
-    exec 'silent! !mkdir devdocs'
     let call_string = substitute(a:call_string, '<ngram>', a:ngram, 'g')
     call histadd('cmd', 'DD '.a:ngram)
 
@@ -328,7 +327,7 @@ augroup FileType python
 
     au FileType python let b:snippets_dir = '~/Projects/Snippets/python'
 
-    au FileType python let b:DD_call = 'let g:temp = b:DD_call | tabnew devdocs/<ngram> | let b:DD_call = g:temp | silent! read !python3 -m pydoc <ngram>'
+    au FileType python let b:DD_call = 'let g:temp = b:DD_call | tabnew dd_<ngram> | let b:DD_call = g:temp | silent! read !python3 -m pydoc <ngram>'
 
 augroup END
 
