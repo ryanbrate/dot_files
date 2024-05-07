@@ -289,6 +289,7 @@ function! DevDocs(ngram) abort
 
 endfunction
 silent! command! -nargs=1 DD call DevDocs(<q-args>)
+nnoremap <space><space> :b doc<CR>
     
 "---
 " filetype-specific settings
