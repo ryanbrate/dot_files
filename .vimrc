@@ -247,7 +247,7 @@ command! RepeatedWords /\(\<\w\+\>\)\_s*\<\1\>
 " ------
 
 function! Tag() abort
-    exec '!ctags -R --languages='..&filetype
+    exec '!ctags -R --languages='.&filetype
 endfunction
 command! Tag call g:Tag()
 
@@ -279,16 +279,37 @@ function! g:Snip() abort
 endfunction
 nnoremap <Leader>sn :call Snip()<CR>
 
-function! DevDocs(ngram) abort
+function! DevDocs(ngram, ft) abort
 
+    " run the commands
     for call_string in b:DD_call
         let call_string = substitute(call_string, '<ngram>', a:ngram, 'g')
         exec call_string
     endfor
-    call histadd('cmd', 'DD '.a:ngram)
+
+    " add to history
+    call histadd('cmd', ':DD '.a:ngram)
+
+    " ------
+    " record called ngrams by filetype, to power a customlist
+    " ----
+    let fp = expand('~/.vim/doc_history_'.a:ft.'.json')
+
+    " get existing history_list for filetype
+    if filereadable(fp)
+        let history_list = json_decode(readfile(fp)[0])
+    else
+        let history_list = []
+    endif
+
+    " add unseen ngrams to history
+    if index(history_list, a:ngram) == -1
+        call add(history_list, a:ngram)
+        call writefile([json_encode(history_list)], fp)
+    endif
 
 endfunction
-silent! command! -nargs=1 DD call DevDocs(<q-args>)
+silent! command! -nargs=1 DD call DevDocs(<q-args>, &ft)
 nnoremap <space><space> :b doc<CR>
     
 "---
@@ -328,7 +349,7 @@ augroup FileType python
                 \]
 
     au FileType python let b:snippets_dir = '~/Projects/Snippets/python'
-    au FileType python let b:DD_call = ['silent !python3 -m pydoc <ngram> > doc', 'e doc']
+    au FileType python let b:DD_call = ['silent !python3 -m pydoc <ngram> > ~/.vim/doc', 'e ~/.vim/doc']
 
 augroup END
 
