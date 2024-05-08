@@ -281,44 +281,67 @@ nnoremap <Leader>sn :call Snip()<CR>
 
 function! DevDocs(ngram, ft) abort
 
-    " run the commands
-    for call_string in b:DD_call
+    " get documentation, substituting <ngram> for a:ngram in b:DD_call
+    " and save doc
+    for call_string in ['silent '.b:DD_call.' > ~/.vim/doc']
         let call_string = substitute(call_string, '<ngram>', a:ngram, 'g')
         exec call_string
     endfor
 
-    " add to history
+    " open saved documentation in new buffer, set doc filetype, copy b:DD_call
+    " to doc for future calls
+    let l:DD_call_copy = b:DD_call
+    for call_string in ['e ~/.vim/doc', 'set ft=DD_doc', 'let b:DD_call="'.l:DD_call_copy.'"', 'redraw!']
+        exec call_string
+    endfor
+
+    " add to cmd history
     call histadd('cmd', ':DD '.a:ngram)
 
-    " ------
-    " record called ngrams by filetype, to power a customlist
-    " ----
-    let fp = expand('~/.vim/doc_history_'.a:ft.'.json')
-
-    " get existing history_list for filetype
-    if filereadable(fp)
-        let history_list = json_decode(readfile(fp)[0])
+    " add to history to power custom list
+    call DevDocs_record(a:ngram, a:ft, 'a')
+    if a:ft == 'DD_doc'
+        call DevDocs_record(a:ngram, 'DD_doc', 'a')
     else
-        let history_list = []
+        call DevDocs_record(a:ngram, 'DD_doc', 'w')
     endif
-
-    " add unseen ngrams to history
-    if index(history_list, a:ngram) == -1
-        call add(history_list, a:ngram)
-        call writefile([json_encode(history_list)], fp)
-    endif
-
 endfunction
 
-function! DevDocs_history(ArgLead, CmdLine, CursorPos) abort
+function! DevDocs_record(ngram, ft, mode)
+    " Append to, or overwrite, doc history wrt., filetype given ngram
+    " Args: 
+    "   mode (str): 'a' appends to history json for filetype, 'w' overwrites    
+
+    " filetype DD history json location
+    let fp = expand('~/.vim/doc_history_'.a:ft.'.json')
+
+    " append to or overwrite history list 
+    let history_list = []
+    if a:mode == 'a'
+        " get existing history if present
+        if filereadable(fp)
+            let history_list = json_decode(readfile(fp)[0])
+        endif
+        " add unseen ngrams to history
+        if index(history_list, a:ngram) == -1
+            call add(history_list, a:ngram)
+        endif
+    elseif a:mode == 'w'
+        call add(history_list, a:ngram)
+    endif
+
+    " save history list wrt., filetype
+    call writefile([json_encode(sort(history_list))], fp)
+endfunction
+
+function! DevDocs_get_history(ArgLead, CmdLine, CursorPos) abort
+    " Return a custom list of DD history wrt., buffer filetype
     let fp = expand('~/.vim/doc_history_'.&ft.'.json')
     let history_list = json_decode(readfile(fp)[0])
     return filter(history_list, 'v:val=~a:ArgLead')
 endfunction
+silent! command! -complete=customlist,DevDocs_get_history -nargs=1 DD call DevDocs(<q-args>, &ft)
 
-silent! command! -complete=customlist,DevDocs_history -nargs=1 DD call DevDocs(<q-args>, &ft)
-nnoremap <space><space> :b doc<CR>
-    
 "---
 " filetype-specific settings
 "---
@@ -356,7 +379,7 @@ augroup FileType python
                 \]
 
     au FileType python let b:snippets_dir = '~/Projects/Snippets/python'
-    au FileType python let b:DD_call = ['silent !python3 -m pydoc <ngram> > ~/.vim/doc', 'e ~/.vim/doc']
+    au FileType python let b:DD_call = '!python3 -m pydoc <ngram>'
 
 augroup END
 
