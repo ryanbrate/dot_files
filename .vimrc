@@ -281,29 +281,33 @@ nnoremap <Leader>sn :call Snip()<CR>
 
 function! DevDocs(ngram, ft) abort
 
-    " get documentation, substituting <ngram> for a:ngram in b:DD_call
-    " and save doc
-    for call_string in ['silent '.b:DD_call.' > ~/.vim/doc']
-        let call_string = substitute(call_string, '<ngram>', a:ngram, 'g')
-        exec call_string
-    endfor
+    if exists('b:DD_call') 
 
-    " open saved documentation in new buffer, set doc filetype, copy b:DD_call
-    " to doc for future calls
-    let l:DD_call_copy = b:DD_call
-    for call_string in ['e ~/.vim/doc', 'set ft=DD_doc', 'let b:DD_call="'.l:DD_call_copy.'"', 'redraw!']
-        exec call_string
-    endfor
+        " get documentation, substituting <ngram> for a:ngram in b:DD_call
+        " and save doc
+        for call_string in ['silent '.b:DD_call.' > ~/.vim/doc']
+            let call_string = substitute(call_string, '<ngram>', a:ngram, 'g')
+            exec call_string
+        endfor
 
-    " add to cmd history
-    call histadd('cmd', ':DD '.a:ngram)
+        " open saved documentation in new buffer, set doc filetype, copy b:DD_call
+        " to doc for future calls
+        let l:DD_call_copy = b:DD_call
+        for call_string in ['e ~/.vim/doc', 'set ft=DD_doc', 'let b:DD_call="'.l:DD_call_copy.'"', 'redraw!']
+            exec call_string
+        endfor
 
-    " add to history to power custom list
-    call DevDocs_record(a:ngram, a:ft, 'a')
-    if a:ft == 'DD_doc'
-        call DevDocs_record(a:ngram, 'DD_doc', 'a')
-    else
-        call DevDocs_record(a:ngram, 'DD_doc', 'w')
+        " add to cmd history
+        call histadd('cmd', ':DD '.a:ngram)
+
+        " add to history to power custom list
+        call DevDocs_record(a:ngram, a:ft, 'a')
+        if a:ft == 'DD_doc'
+            call DevDocs_record(a:ngram, 'DD_doc', 'a')
+        else
+            call DevDocs_record(a:ngram, 'DD_doc', 'w')
+        endif
+
     endif
 endfunction
 
@@ -336,9 +340,13 @@ endfunction
 
 function! DevDocs_get_history(ArgLead, CmdLine, CursorPos) abort
     " Return a custom list of DD history wrt., buffer filetype
-    let fp = expand('~/.vim/doc_history_'.&ft.'.json')
-    let history_list = json_decode(readfile(fp)[0])
-    return filter(history_list, 'v:val=~a:ArgLead')
+    if exists('b:DD_call') 
+        let fp = expand('~/.vim/doc_history_'.&ft.'.json')
+        let history_list = json_decode(readfile(fp)[0])
+        return filter(history_list, 'v:val=~a:ArgLead')
+    else
+        return []  " return blank list, if b:DD_call doesn' exist
+    endif
 endfunction
 silent! command! -complete=customlist,DevDocs_get_history -nargs=1 DD call DevDocs(<q-args>, &ft)
 
