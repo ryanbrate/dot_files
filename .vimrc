@@ -404,25 +404,3 @@ augroup FileType markdown
     au Filetype markdown command! Convert exec '!pandoc % -f markdown -t pdf -o %:r.pdf -V geometry:margin=1in<cr>'
     
 augroup END
-
-" augroup Filetype r
-"     au!
-"     au FileType r setlocal colorcolumn=80
-
-"     au FileType r setlocal softtabstop=2
-"     au FileType r setlocal shiftwidth=2
-
-"     " " fixers
-"     " if has('mac')
-"     "     au FileType r let b:fixer_commands = [
-"     "                 \"!/Library/Frameworks/R.framework/Versions/4.0/Resources/bin/R --slave -e 'library(styler); style_file(\"%:p\")'",
-"                       "fg"
-"     "                 \]
-"     " else
-"     "     au FileType r let b:fixer_commands = [
-"     "                 \"!R --slave -e 'library(styler); style_file(\"%:p\")'",
-"                       "fg"
-"     "                 \]
-"     " endif
-
-" augroup END
