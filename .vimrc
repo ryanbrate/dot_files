@@ -283,15 +283,18 @@ function! DevDocs(ngram, ft) abort
 
     if exists('b:DD_call') 
 
-        " get documentation, substituting <ngram> for a:ngram in b:DD_call
-        " and save doc
+        " ======
+        "  The Basic functionality
+        "  (everything else is a bonus)
+        " ======
+        " save documentation corresponding to a:ngram query to ~/.vim/doc file
         for call_string in ['silent '.b:DD_call.' > ~/.vim/doc']
             let call_string = substitute(call_string, '<ngram>', a:ngram, 'g')
             exec call_string
         endfor
 
-        " open saved documentation in new buffer, set doc filetype, copy b:DD_call
-        " to doc for future calls
+        " open the saved documentation in a new buffer,
+        " set documentation filetype as 'DD_doc'
         let l:DD_call_copy = b:DD_call
         for call_string in ['e ~/.vim/doc', 'set ft=DD_doc', 'let b:DD_call="'.l:DD_call_copy.'"', 'redraw!']
             exec call_string
@@ -300,7 +303,10 @@ function! DevDocs(ngram, ft) abort
         " add to cmd history
         call histadd('cmd', ':DD '.a:ngram)
 
-        " add to history to power custom list
+        " ======
+        " record query history by filetype
+        " (used to power custom list)
+        " ======
         call DevDocs_record(a:ngram, a:ft, 'a')
         if a:ft == 'DD_doc'
             call DevDocs_record(a:ngram, 'DD_doc', 'a')
@@ -312,21 +318,22 @@ function! DevDocs(ngram, ft) abort
 endfunction
 
 function! DevDocs_record(ngram, ft, mode)
-    " Append to, or overwrite, doc history wrt., filetype given ngram
+    " Record queries by filetype in a .json
+    "
     " Args: 
     "   mode (str): 'a' appends to history json for filetype, 'w' overwrites    
 
-    " filetype DD history json location
+    " record fp by filetype
     let fp = expand('~/.vim/doc_history_'.a:ft.'.json')
 
-    " append to or overwrite history list 
+    " append to or overwrite history
     let history_list = []
     if a:mode == 'a'
         " get existing history if present
         if filereadable(fp)
             let history_list = json_decode(readfile(fp)[0])
         endif
-        " add unseen ngrams to history
+        " add unseen ngrams (queries) to history
         if index(history_list, a:ngram) == -1
             call add(history_list, a:ngram)
         endif
@@ -334,7 +341,7 @@ function! DevDocs_record(ngram, ft, mode)
         call add(history_list, a:ngram)
     endif
 
-    " save history list wrt., filetype
+    " save history wrt., filetype
     call writefile([json_encode(sort(history_list))], fp)
 endfunction
 
