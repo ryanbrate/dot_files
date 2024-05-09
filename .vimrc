@@ -35,7 +35,7 @@ set cpo-=<  " enable <> notation, see :h <>
 nnoremap Z <Nop>
 nnoremap ZZ <Nop>
 
-" nnoremap <space><space> <c-^>
+nnoremap <space><space> <c-^>
 
 " ------
 " clipboard
