@@ -349,7 +349,10 @@ function! DevDocs_get_history(ArgLead, CmdLine, CursorPos) abort
     " Return a custom list of DD history wrt., buffer filetype
     if exists('b:DD_call') 
         let fp = expand('~/.vim/doc_history_'.&ft.'.json')
-        let history_list = json_decode(readfile(fp)[0])
+        let history_list = []
+        if filereadable(fp)
+            let history_list = json_decode(readfile(fp)[0])
+        endif
         return filter(history_list, 'v:val=~a:ArgLead')
     else
         return []  " return blank list, if b:DD_call doesn' exist
@@ -395,6 +398,7 @@ augroup FileType python
 
     au FileType python let b:snippets_dir = '~/Projects/Snippets/python'
     au FileType python let b:DD_call = '!python3 -m pydoc <ngram>'
+    au FileType python let b:DD_call = '!python3 -c'
 
 augroup END
 
