@@ -398,8 +398,6 @@ augroup FileType python
 
     au FileType python let b:snippets_dir = '~/Projects/Snippets/python'
     au FileType python let b:DD_call = '!python3 -m pydoc <ngram>'
-    au FileType python let b:DD_call = '!python3 -c'
-
 augroup END
 
 
