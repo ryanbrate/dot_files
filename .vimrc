@@ -35,7 +35,7 @@ set cpo-=<  " enable <> notation, see :h <>
 nnoremap Z <Nop>
 nnoremap ZZ <Nop>
 
-nnoremap <space><space> <c-^>
+" nnoremap <space><space> <c-^>
 
 " ------
 " clipboard
@@ -287,14 +287,15 @@ function! DevDocs(ngram, ft) abort
         "  The Basic functionality
         "  (everything else is a bonus)
         " ======
-        " save documentation corresponding to a:ngram query to ~/.vim/doc file
+        " save query documentation to ~/.vim/doc file
         for call_string in ['silent '.b:DD_call.' > ~/.vim/doc']
             let call_string = substitute(call_string, '<ngram>', a:ngram, 'g')
             exec call_string
         endfor
 
         " open the saved documentation in a new buffer,
-        " set documentation filetype as 'DD_doc'
+        " ... set documentation buffer filetype as 'DD_doc'
+        " ... set b:DD_call for documentation buffer
         let l:DD_call_copy = b:DD_call
         for call_string in ['e ~/.vim/doc', 'set ft=DD_doc', 'let b:DD_call="'.l:DD_call_copy.'"', 'redraw!']
             exec call_string
@@ -359,6 +360,22 @@ function! DevDocs_get_history(ArgLead, CmdLine, CursorPos) abort
     endif
 endfunction
 silent! command! -complete=customlist,DevDocs_get_history -nargs=1 DD call DevDocs(<q-args>, &ft)
+
+function! DevDocsDelete(ngram, ft)
+    " open relevant history list for filetype 
+    let fp = expand('~/.vim/doc_history_'.a:ft.'.json')
+    if filereadable(fp)
+        let history_list = json_decode(readfile(fp)[0])
+
+        " remove gram from history and save the amended list
+        let ngram_index = index(history_list, a:ngram)
+        if ngram_index != -1
+            call remove(history_list, ngram_index)
+            call writefile([json_encode(history_list)], fp)
+        endif
+    endif
+endfunction
+silent! command! -complete=customlist,DevDocs_get_history -nargs=1 DDel call DevDocsDelete(<q-args>, &ft)
 
 "---
 " filetype-specific settings
