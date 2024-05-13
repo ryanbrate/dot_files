@@ -117,7 +117,7 @@ set backspace=indent,eol,start
 
 " set path=.,  " :find searches current dir only
 set path+=**  " :find searches sub-folders recursively
-set wildmenu
+set wildmenu wildoptions=pum
 set wildmode=full
 set wildignore+=*.swp,*.bak  " vim
 set wildignore+=*.pyc  " python
