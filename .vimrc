@@ -213,8 +213,8 @@ nnoremap <Leader>vf :h builtin<cr>
 " ------
 " (basic wimwiki replacement shortcuts)
 " ------
-nnoremap <Leader>ww :e ~/zettelkasten/index.md<cr>
-nnoremap <Leader>wi :e ~/zettelkasten/scratch.md<cr>
+nnoremap <Leader>ww :e ~/index.md<cr>
+nnoremap <Leader>wi :e ~/scratch.md<cr>
 
 " ------
 " custom commands
