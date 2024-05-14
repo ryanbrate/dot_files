@@ -298,7 +298,7 @@ function! DevDocs(ngram, ft) abort
         " ... set documentation buffer filetype as 'DD_doc'
         " ... set b:DD_call for documentation buffer
         let l:DD_call_copy = b:DD_call
-        for call_string in ['e ~/.vim/doc', 'set ft=DD_doc', 'let b:DD_call="'.l:DD_call_copy.'"', 'redraw!']
+        for call_string in ['e ~/.vim/doc', 'set ft=DD_doc', 'let b:DD_call="'.l:DD_call_copy.'"', 'redraw!', 'normal gg']
             exec call_string
         endfor
 
