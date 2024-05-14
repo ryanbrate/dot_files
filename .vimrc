@@ -382,6 +382,13 @@ silent! command! -complete=customlist,DevDocs_get_history -nargs=1 DDel call Dev
 " filetype-specific settings
 "---
 
+augroup VimEnter *
+    " auto-source session.vim in current dir
+    if argc() == 0 && filereadable('session.vim')
+            au VimEnter * source session.vim
+    endif
+augroup End
+
 augroup FileType *
     au!
     au FileType * match none "clear previous highlighted matches in new buffer
