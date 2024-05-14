@@ -36,6 +36,7 @@ nnoremap Z <Nop>
 nnoremap ZZ <Nop>
 
 " nnoremap <space><space> <c-^>
+nnoremap <space> za
 
 " ------
 " clipboard
