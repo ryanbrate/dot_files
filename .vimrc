@@ -296,11 +296,13 @@ function! DevDocs(ngram, ft) abort
 
         " open the saved documentation in a new buffer,
         " ... set documentation buffer filetype as 'DD_doc'
-        " ... set b:DD_call for documentation buffer
         let l:DD_call_copy = b:DD_call
-        for call_string in ['e ~/.vim/doc', 'set ft=DD_doc', 'let b:DD_call="'..l:DD_call_copy..'"', 'redraw!', 'normal gg']
+        for call_string in ['e ~/.vim/doc', 'set ft=DD_doc', 'redraw!', 'normal gg']
             exec call_string
         endfor
+
+        " ... set b:DD_call for documentation buffer
+        let b:DD_call = l:DD_call_copy
 
         " add to cmd history
         call histadd('cmd', ':DD '..a:ngram)
@@ -407,6 +409,7 @@ augroup Filetype julia
     au Filetype julia setlocal colorcolumn=80
     " au FileType julia let b:fixer_commands = [":!julia -e 'using JuliaFormatter;format_file(\"%\")'"]
     au FileType julia let b:fixer_commands = [":!julia --threads=auto -J ~/Projects/JuliaFormatterSysImage/julia_formatter.so -e 'using JuliaFormatter; format_file(\"%\")'"]
+    au FileType julia let b:DD_call = '!julia -E "try; eval(Meta.parse(\"using \" * split(\"<ngram>\", \".\")[1])); catch; end; @doc <ngram>"'
 
 augroup End
 
