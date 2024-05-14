@@ -99,9 +99,9 @@ colorscheme default
 " ------
 "  default code folding
 " ------
-set foldmethod=indent
-set foldnestmax=3  " only 3 levels of fold
-set foldlevel=0 
+set foldmethod=manual
+set nofoldenable
+set foldcolumn=2
 
 " -----
 " misc
