@@ -172,9 +172,9 @@ endif
 " current filetype
 " ------
 command! -nargs=* VG exec len(split(<q-args>)) == 0?
-    \'vimgrep '.expand("<cword>").' '.'**/*.'.expand('%:e').'<CR>|copen'
+    \'vimgrep '..expand("<cword>")..' '..'**/*.'..expand('%:e')..'<CR>|copen'
     \:
-    \'vimgrep '.<q-args>.' '.'**/*.'.expand('%:e').'<CR>|copen'
+    \'vimgrep '..<q-args>..' '..'**/*.'..expand('%:e')..'<CR>|copen'
 
 " ------
 " plugins
@@ -236,7 +236,7 @@ let s:hom = ["its", "it's",
             \"were", "we're", "where", 
             \"who's", "whose",
             \]
-command! Hom exec '/\(' . join(s:hom, '\|') . '\)' 
+command! Hom exec '/\(' .. join(s:hom, '\|') .. '\)' 
 
 " highlight (likely unintended) repeated consecutive words
 command! RepeatedWords /\(\<\w\+\>\)\_s*\<\1\>
@@ -248,7 +248,7 @@ command! RepeatedWords /\(\<\w\+\>\)\_s*\<\1\>
 " ------
 
 function! Tag() abort
-    exec '!ctags -R --languages='.&filetype
+    exec '!ctags -R --languages='..&filetype
 endfunction
 command! Tag call g:Tag()
 
@@ -264,7 +264,7 @@ command! Fix call g:RunFixers()
 function! g:SnipNames(ArgLead, CmdLine, CursorPos) abort
     """ Return a customlist for command-complete, of snippet 'names' at b:snippets_dir
     """
-    let fps = glob(b:snippets_dir.'/*',0,1)
+    let fps = glob(b:snippets_dir..'/*',0,1)
     let fns = []
     for fp in fps
         let fns = add(fns, fnamemodify(fp,':t'))
@@ -276,7 +276,7 @@ function! g:Snip() abort
     """ Read in a snippet from b:snippets_dir
     """
     let snip_name = input('snippet_name: ','', 'customlist,SnipNames')
-    exec ':-1read'.b:snippets_dir.'/'.snip_name
+    exec ':-1read'..b:snippets_dir..'/'..snip_name
 endfunction
 nnoremap <Leader>sn :call Snip()<CR>
 
@@ -289,7 +289,7 @@ function! DevDocs(ngram, ft) abort
         "  (everything else is a bonus)
         " ======
         " save query documentation to ~/.vim/doc file
-        for call_string in ['silent '.b:DD_call.' > ~/.vim/doc']
+        for call_string in ['silent '..b:DD_call..' > ~/.vim/doc']
             let call_string = substitute(call_string, '<ngram>', a:ngram, 'g')
             exec call_string
         endfor
@@ -298,12 +298,12 @@ function! DevDocs(ngram, ft) abort
         " ... set documentation buffer filetype as 'DD_doc'
         " ... set b:DD_call for documentation buffer
         let l:DD_call_copy = b:DD_call
-        for call_string in ['e ~/.vim/doc', 'set ft=DD_doc', 'let b:DD_call="'.l:DD_call_copy.'"', 'redraw!', 'normal gg']
+        for call_string in ['e ~/.vim/doc', 'set ft=DD_doc', 'let b:DD_call="'..l:DD_call_copy..'"', 'redraw!', 'normal gg']
             exec call_string
         endfor
 
         " add to cmd history
-        call histadd('cmd', ':DD '.a:ngram)
+        call histadd('cmd', ':DD '..a:ngram)
 
         " ======
         " record query history by filetype
@@ -326,7 +326,7 @@ function! DevDocs_record(ngram, ft, mode)
     "   mode (str): 'a' appends to history json for filetype, 'w' overwrites    
 
     " record fp by filetype
-    let fp = expand('~/.vim/doc_history_'.a:ft.'.json')
+    let fp = expand('~/.vim/doc_history_'..a:ft..'.json')
 
     " append to or overwrite history
     let history_list = []
@@ -350,7 +350,7 @@ endfunction
 function! DevDocs_get_history(ArgLead, CmdLine, CursorPos) abort
     " Return a custom list of DD history wrt., buffer filetype
     if exists('b:DD_call') 
-        let fp = expand('~/.vim/doc_history_'.&ft.'.json')
+        let fp = expand('~/.vim/doc_history_'..&ft..'.json')
         let history_list = []
         if filereadable(fp)
             let history_list = json_decode(readfile(fp)[0])
@@ -364,7 +364,7 @@ silent! command! -complete=customlist,DevDocs_get_history -nargs=1 DD call DevDo
 
 function! DevDocsDelete(ngram, ft)
     " open relevant history list for filetype 
-    let fp = expand('~/.vim/doc_history_'.a:ft.'.json')
+    let fp = expand('~/.vim/doc_history_'..a:ft..'.json')
     if filereadable(fp)
         let history_list = json_decode(readfile(fp)[0])
 
