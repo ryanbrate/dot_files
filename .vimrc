@@ -427,8 +427,8 @@ augroup FileType python
 
     " fixers
     au FileType python let b:fixer_commands = [
-                \"!black \"%:p\";fg 2>/dev/null",
-                \"!isort \"%:p\";fg 2>/dev/null",
+                \'!black %',
+                \'!isort %',
                 \]
 
     au FileType python let b:snippets_dir = '~/Projects/Snippets/python'
