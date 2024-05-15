@@ -264,19 +264,22 @@ command! Fix call g:RunFixers()
 function! g:SnipNames(ArgLead, CmdLine, CursorPos) abort
     """ Return a customlist for command-complete, of snippet 'names' at b:snippets_dir
     """
-    let fps = glob(b:snippets_dir..'/*',0,1)
-    let fns = []
-    for fp in fps
-        let fns = add(fns, fnamemodify(fp,':t'))
-    endfor
-    return fns
+    " get snippet fps
+    let fps = filter(glob(b:snippets_dir..'/**/*',0,1), 'isdirectory(v:val)==v:false')
+
+    " amend fps to relative to b:snippets_dir
+    let rel_fps = map(fps, {index,fp -> substitute(fp, expand(b:snippets_dir)..'/', '', '')})
+    echom rel_fps
+
+    " filter those matching ArgLead
+    return filter(rel_fps, 'v:val=~a:ArgLead')
 endfunction
 
 function! g:Snip() abort
     """ Read in a snippet from b:snippets_dir
     """
-    let snip_name = input('snippet_name: ','', 'customlist,SnipNames')
-    exec ':-1read'..b:snippets_dir..'/'..snip_name
+    let snip = input('snippet_name: ','', 'customlist,SnipNames')
+    exec ':-1read'..b:snippets_dir..'/'..snip
 endfunction
 nnoremap <Leader>sn :call Snip()<CR>
 
@@ -410,6 +413,7 @@ augroup Filetype julia
     " au FileType julia let b:fixer_commands = [":!julia -e 'using JuliaFormatter;format_file(\"%\")'"]
     au FileType julia let b:fixer_commands = [":!julia --threads=auto -J ~/Projects/JuliaFormatterSysImage/julia_formatter.so -e 'using JuliaFormatter; format_file(\"%\")'"]
     au FileType julia let b:DD_call = '!julia -E "try; eval(Meta.parse(\"using \" * split(\"<ngram>\", \".\")[1])); catch; end; @doc <ngram>"'
+    au FileType julia let b:snippets_dir = '~/Projects/Snippets/julia'
 
 augroup End
 
