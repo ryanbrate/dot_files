@@ -309,7 +309,7 @@ function! DevDocs(ngram, ft) abort
             exec call_string
         endfor
 
-        " only open the doc (in current window) if not in an open window
+        " only open the doc (in current window) if not already in an open window
         if index(WindowedDocs(), expand('~/.vim/doc')) == -1
             let l:DD_call_copy = b:DD_call
             for call_string in ['e ~/.vim/doc', 'set ft=DD_doc', 'redraw!', 'normal gg']
@@ -318,6 +318,11 @@ function! DevDocs(ngram, ft) abort
 
             " ... set b:DD_call for documentation buffer
             let b:DD_call = l:DD_call_copy
+
+            " set originating filetype
+            if a:ft != 'DD_doc'
+                let b:originating_ft = a:ft
+            endif
         else
             exec 'redraw!'
         endif
@@ -330,10 +335,11 @@ function! DevDocs(ngram, ft) abort
         " (used to power custom list)
         " ======
         call DevDocs_record(a:ngram, a:ft, 'a')
-        if a:ft == 'DD_doc'
-            call DevDocs_record(a:ngram, 'DD_doc', 'a')
-        else
+
+        if a:ft != 'DD_doc'
             call DevDocs_record(a:ngram, 'DD_doc', 'w')
+        else
+            call DevDocs_record(a:ngram, b:originating_ft, 'a')
         endif
 
     endif
@@ -381,6 +387,7 @@ function! DevDocs_get_history(ArgLead, CmdLine, CursorPos) abort
         return []  " return blank list, if b:DD_call doesn' exist
     endif
 endfunction
+
 silent! command! -complete=customlist,DevDocs_get_history -nargs=1 DD call DevDocs(<q-args>, &ft)
 
 function! DevDocsDelete(ngram, ft)
