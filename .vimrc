@@ -208,20 +208,16 @@ nnoremap <Leader>we :e ~/dot_files/.vimrc<cr>
 " ------
 " vimscript documentation
 " ------
-nnoremap <Leader>vf :h builtin<cr>
+nnoremap <Leader>wv :h builtin<cr>
 
 " ------
 " (basic wimwiki replacement shortcuts)
 " ------
-nnoremap <Leader>ww :e ~/index.md<cr>
-nnoremap <Leader>wi :e ~/scratch.md<cr>
+nnoremap <Leader>ww :e ~/scratch.md<cr>
 
 " ------
 " custom commands
 " ------
-
-" git log
-nnoremap <Leader>gl :!git log --oneline --graph --all --decorate<CR>
 
 " undotree
 nnoremap <F5> :UndotreeToggle<CR>
@@ -283,126 +279,6 @@ function! g:Snip() abort
 endfunction
 nnoremap <Leader>sn :call Snip()<CR>
 
-function! WindowedDocs() abort
-    " Return a list of document paths in current open windows
-    let win_numbers = range(1, winnr('$'))
-    let corresponding_buf_numbers = map(win_numbers, {index, win_number -> winbufnr(win_number)})
-    let corresponding_buf_paths = map(
-                \corresponding_buf_numbers, 
-                \{index, buf_number -> fnamemodify(bufname(buf_number), ':p')}
-                \)
-
-    return corresponding_buf_paths
-endfunction
-
-function! DevDocs(ngram, ft) abort
-
-    if exists('b:DD_call') 
-
-        " ======
-        "  The Basic functionality
-        "  (everything else is a bonus)
-        " ======
-        " save query documentation to ~/.vim/doc file
-        for call_string in ['silent '..b:DD_call..' > ~/.vim/doc']
-            let call_string = substitute(call_string, '<ngram>', a:ngram, 'g')
-            exec call_string
-        endfor
-
-        " only open the doc (in current window) if not already in an open window
-        if index(WindowedDocs(), expand('~/.vim/doc')) == -1
-            let l:DD_call_copy = b:DD_call
-            for call_string in ['w', 'e ~/.vim/doc', 'set ft=DD_doc', 'redraw!', 'normal gg']
-                exec call_string
-            endfor
-
-            " ... set b:DD_call for documentation buffer
-            let b:DD_call = l:DD_call_copy
-
-            " set originating filetype
-            if a:ft != 'DD_doc'
-                let b:originating_ft = a:ft
-            endif
-        else
-            exec 'redraw!'
-        endif
-
-        " ======
-        " record query history by filetype
-        " (used to power custom list)
-        " ======
-        call DevDocs_record(a:ngram, a:ft, 'a')
-
-        if a:ft != 'DD_doc'
-            call DevDocs_record(a:ngram, 'DD_doc', 'w')
-        else
-            call DevDocs_record(a:ngram, b:originating_ft, 'a')
-        endif
-
-    endif
-endfunction
-
-
-function! DevDocs_record(ngram, ft, mode) abort
-    " Record queries by filetype in a .json
-    "
-    " Args: 
-    "   mode (str): 'a' appends to history json for filetype, 'w' overwrites    
-
-    " record fp by filetype
-    let fp = expand('~/.vim/doc_history_'..a:ft..'.json')
-
-    " append to or overwrite history
-    let history_list = []
-    if a:mode == 'a'
-        " get existing history if present
-        if filereadable(fp)
-            let history_list = json_decode(readfile(fp)[0])
-        endif
-        " add unseen ngrams (queries) to history
-        if index(history_list, a:ngram) == -1
-            call add(history_list, a:ngram)
-        endif
-    elseif a:mode == 'w'
-        call add(history_list, a:ngram)
-    endif
-
-    " save history wrt., filetype
-    call writefile([json_encode(sort(history_list))], fp)
-endfunction
-
-function! DevDocs_get_history(ArgLead, CmdLine, CursorPos) abort
-    " Return a custom list of DD history wrt., buffer filetype
-    if exists('b:DD_call') 
-        let fp = expand('~/.vim/doc_history_'..&ft..'.json')
-        let history_list = []
-        if filereadable(fp)
-            let history_list = json_decode(readfile(fp)[0])
-        endif
-        return filter(history_list, 'v:val=~a:ArgLead')
-    else
-        return []  " return blank list, if b:DD_call doesn' exist
-    endif
-endfunction
-
-silent! command! -complete=customlist,DevDocs_get_history -nargs=1 DD call DevDocs(<q-args>, &ft)
-
-function! DevDocsDelete(ngram, ft)
-    " open relevant history list for filetype 
-    let fp = expand('~/.vim/doc_history_'..a:ft..'.json')
-    if filereadable(fp)
-        let history_list = json_decode(readfile(fp)[0])
-
-        " remove gram from history and save the amended list
-        let ngram_index = index(history_list, a:ngram)
-        if ngram_index != -1
-            call remove(history_list, ngram_index)
-            call writefile([json_encode(history_list)], fp)
-        endif
-    endif
-endfunction
-silent! command! -complete=customlist,DevDocs_get_history -nargs=1 DDel call DevDocsDelete(<q-args>, &ft)
-
 "---
 " filetype-specific settings
 "---
@@ -435,7 +311,6 @@ augroup Filetype julia
     else
         au FileType julia let b:fixer_commands = [":!julia -e 'using JuliaFormatter;format_file(\"%\")'"]
     endif
-    au FileType julia let b:DD_call = '!julia -E "try; eval(Meta.parse(\"using \" * split(\"<ngram>\", \".\")[1])); catch; end; @doc <ngram>"'
     au FileType julia let b:snippets_dir = '~/Projects/Snippets/julia'
 
 augroup End
@@ -452,7 +327,6 @@ augroup FileType python
                 \]
 
     au FileType python let b:snippets_dir = '~/Projects/Snippets/python'
-    au FileType python let b:DD_call = '!python3 -m pydoc <ngram>'
 augroup END
 
 
