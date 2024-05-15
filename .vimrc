@@ -410,8 +410,11 @@ augroup End
 augroup Filetype julia
     au!
     au Filetype julia setlocal colorcolumn=80
-    " au FileType julia let b:fixer_commands = [":!julia -e 'using JuliaFormatter;format_file(\"%\")'"]
-    au FileType julia let b:fixer_commands = [":!julia --threads=auto -J ~/Projects/JuliaFormatterSysImage/julia_formatter.so -e 'using JuliaFormatter; format_file(\"%\")'"]
+    if filereadable('~/Projects/JuliaFormatterSysImage/julia_formatter.so')
+        au FileType julia let b:fixer_commands = [":!julia --threads=auto -J ~/Projects/JuliaFormatterSysImage/julia_formatter.so -e 'using JuliaFormatter; format_file(\"%\")'"]
+    else
+        au FileType julia let b:fixer_commands = [":!julia -e 'using JuliaFormatter;format_file(\"%\")'"]
+    endif
     au FileType julia let b:DD_call = '!julia -E "try; eval(Meta.parse(\"using \" * split(\"<ngram>\", \".\")[1])); catch; end; @doc <ngram>"'
     au FileType julia let b:snippets_dir = '~/Projects/Snippets/julia'
 
