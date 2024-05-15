@@ -312,7 +312,7 @@ function! DevDocs(ngram, ft) abort
         " only open the doc (in current window) if not already in an open window
         if index(WindowedDocs(), expand('~/.vim/doc')) == -1
             let l:DD_call_copy = b:DD_call
-            for call_string in ['e ~/.vim/doc', 'set ft=DD_doc', 'redraw!', 'normal gg']
+            for call_string in ['w', 'e ~/.vim/doc', 'set ft=DD_doc', 'redraw!', 'normal gg']
                 exec call_string
             endfor
 
@@ -326,9 +326,6 @@ function! DevDocs(ngram, ft) abort
         else
             exec 'redraw!'
         endif
-
-        " add to cmd history
-        call histadd('cmd', ':DD '..a:ngram)
 
         " ======
         " record query history by filetype
