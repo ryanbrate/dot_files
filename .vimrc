@@ -283,6 +283,18 @@ function! g:Snip() abort
 endfunction
 nnoremap <Leader>sn :call Snip()<CR>
 
+function! WindowedDocs() abort
+    " Return a list of document paths in current open windows
+    let win_numbers = range(1, winnr('$'))
+    let corresponding_buf_numbers = map(win_numbers, {index, win_number -> winbufnr(win_number)})
+    let corresponding_buf_paths = map(
+                \corresponding_buf_numbers, 
+                \{index, buf_number -> fnamemodify(bufname(buf_number), ':p')}
+                \)
+
+    return corresponding_buf_paths
+endfunction
+
 function! DevDocs(ngram, ft) abort
 
     if exists('b:DD_call') 
@@ -297,15 +309,18 @@ function! DevDocs(ngram, ft) abort
             exec call_string
         endfor
 
-        " open the saved documentation in a new buffer,
-        " ... set documentation buffer filetype as 'DD_doc'
-        let l:DD_call_copy = b:DD_call
-        for call_string in ['e ~/.vim/doc', 'set ft=DD_doc', 'redraw!', 'normal gg']
-            exec call_string
-        endfor
+        " only open the doc (in current window) if not in an open window
+        if index(WindowedDocs(), expand('~/.vim/doc')) == -1
+            let l:DD_call_copy = b:DD_call
+            for call_string in ['e ~/.vim/doc', 'set ft=DD_doc', 'redraw!', 'normal gg']
+                exec call_string
+            endfor
 
-        " ... set b:DD_call for documentation buffer
-        let b:DD_call = l:DD_call_copy
+            " ... set b:DD_call for documentation buffer
+            let b:DD_call = l:DD_call_copy
+        else
+            exec 'redraw!'
+        endif
 
         " add to cmd history
         call histadd('cmd', ':DD '..a:ngram)
@@ -324,7 +339,8 @@ function! DevDocs(ngram, ft) abort
     endif
 endfunction
 
-function! DevDocs_record(ngram, ft, mode)
+
+function! DevDocs_record(ngram, ft, mode) abort
     " Record queries by filetype in a .json
     "
     " Args: 
