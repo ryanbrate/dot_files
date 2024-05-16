@@ -269,7 +269,6 @@ function! g:SnipNames(ArgLead, CmdLine, CursorPos) abort
 
     " amend fps to relative to b:snippets_dir
     let rel_fps = map(fps, {index,fp -> substitute(fp, expand(b:snippets_dir)..'/', '', '')})
-    echom rel_fps
 
     " filter those matching ArgLead
     return filter(rel_fps, 'v:val=~a:ArgLead')
@@ -299,10 +298,6 @@ function! DevDocs(ngram, ft) abort
 
     if exists('b:DD_call') 
 
-        " ======
-        "  The Basic functionality
-        "  (everything else is a bonus)
-        " ======
         " save query documentation to ~/.vim/doc file
         for call_string in ['silent '..b:DD_call..' > ~/.vim/doc']
             let call_string = substitute(call_string, '<ngram>', a:ngram, 'g')
@@ -319,24 +314,27 @@ function! DevDocs(ngram, ft) abort
             " ... set b:DD_call for documentation buffer
             let b:DD_call = l:DD_call_copy
 
-            " set originating filetype
-            if a:ft != 'DD_doc'
-                let b:originating_ft = a:ft
-            endif
         else
             exec 'redraw!'
         endif
 
-        " ======
-        " record query history by filetype
-        " (used to power custom list)
-        " ======
-        call DevDocs_record(a:ngram, a:ft, 'a')
-
+        " set originating filetype
         if a:ft != 'DD_doc'
-            call DevDocs_record(a:ngram, 'DD_doc', 'w')
-        else
+            let b:originating_ft = a:ft
+        endif
+
+        if a:ft == 'DD_doc'
+            " an ngram called from DD_doc:
+            "   gets added to DD_doc history
+            "   gets added to the history originating filetype
             call DevDocs_record(a:ngram, b:originating_ft, 'a')
+            call DevDocs_record(a:ngram, 'DD_doc' 'a')
+        else
+            " an ngram queried from a non DD_doc type:
+            "   gets added to the history of the calling doc type
+            "   gets added to a newly scrubbed DD_doc history
+            call DevDocs_record(a:ngram, a:ft, 'a')
+            call DevDocs_record(a:ngram, 'DD_doc', 'w')
         endif
 
     endif
@@ -409,8 +407,8 @@ silent! command! -complete=customlist,DevDocs_get_history -nargs=1 DDel call Dev
 
 augroup VimEnter *
     " auto-source session.vim in current dir
-    if argc() == 0 && filereadable('session.vim')
-            au VimEnter * source session.vim
+    if argc() == 0 && filereadable('Session.vim')
+            au VimEnter * source Session.vim
     endif
 augroup End
 
