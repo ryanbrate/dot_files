@@ -328,7 +328,7 @@ function! DevDocs(ngram, ft) abort
             "   gets added to DD_doc history
             "   gets added to the history originating filetype
             call DevDocs_record(a:ngram, b:originating_ft, 'a')
-            call DevDocs_record(a:ngram, 'DD_doc' 'a')
+            call DevDocs_record(a:ngram, 'DD_doc', 'a')
         else
             " an ngram queried from a non DD_doc type:
             "   gets added to the history of the calling doc type
