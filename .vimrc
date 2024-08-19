@@ -92,9 +92,6 @@ set showmatch  " highlight matching bracket
 set splitbelow
 set noerrorbells  " disable sys beep
 
-set termguicolors
-colorscheme default
-" set background=dark
 
 " ------
 "  default code folding
@@ -182,7 +179,12 @@ command! -nargs=* VG exec len(split(<q-args>)) == 0?
 call plug#begin()
     Plug 'tpope/vim-commentary'
     Plug 'mbbill/undotree'
+    Plug 'morhetz/gruvbox'
 call plug#end()
+
+set termguicolors
+colorscheme gruvbox
+" set background=dark
 
 " ------
 " working with tabs
