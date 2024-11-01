@@ -180,7 +180,13 @@ call plug#begin()
     Plug 'tpope/vim-commentary'
     Plug 'mbbill/undotree'
     Plug 'morhetz/gruvbox'
+    Plug 'ryanbrate/functional.vim'
+    Plug 'ryanbrate/developer_documentation.vim'
 call plug#end()
+
+" ------
+" colorscheme
+" ------
 
 set termguicolors
 colorscheme gruvbox
@@ -330,6 +336,17 @@ augroup FileType python
                 \'!black %',
                 \'!isort %',
                 \]
+
+    au FileType python let b:DD_conj = '.'
+    au FileType python let b:DD_permissible_chars = 'a-zA-Z0-9\._'
+    au FileType python let b:DD_import_patterns = [
+        \['from\s\+\(\S\+\)\s\+import\s\+\(\S\+\)\s\+as\s\+\(\S\+\)', {3:[1,2]}, 0],
+        \['from\s\+\(\S\+\)\s\+import\s\+\(\S\+\)', {2:[1, 2]}, 0],
+        \['import\s\+\(\S\+\)\s\+as\s\+\(\S\+\)', {2:[1]}, 0],
+        \['\(\S\+\)\s*:\s*\(\S\+\)\s*=', {1:[2]}, 1],
+        \]
+    au FileType python let b:DD_call = '!python3 -m pydoc <TOKEN>'
+    au FileType python nnoremap <buffer> K :DD<CR>
 
     au FileType python let b:snippets_dir = '~/Projects/Snippets/python'
 augroup END
