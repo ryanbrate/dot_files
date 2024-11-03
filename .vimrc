@@ -1,4 +1,17 @@
 " ------
+"  git notes
+" ------
+"  remove staged changed, but keep changes in working dir
+"    git restore --staged <filepath>
+"  discard changes in working dir (to last commit), with no affect on staging area
+"    git restore <filepath>
+"  Note: git add;git restore;git commit; results in the working directory
+"  being behind the latest commit. A subsequent git restore will handle this.
+"
+"  update last commit with latest staged changes
+"  git commit --amend
+
+" ------
 " some notes on useful keys
 " ------
 " see definition search for function search, e.g., [ ctrl-i and [i
