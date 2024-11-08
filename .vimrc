@@ -203,7 +203,12 @@ call plug#end()
 
 set termguicolors
 colorscheme gruvbox
-set background=dark
+let hour = str2nr(strftime("%H"))
+if hour > 8 && hour < 19
+    set background=dark
+else
+    set background=light
+endif
 
 " ------
 " working with tabs
@@ -335,7 +340,8 @@ augroup Filetype julia
     else
         au FileType julia let b:fixer_commands = [":!julia -e 'using JuliaFormatter;format_file(\"%\")'"]
     endif
-    au FileType julia let b:snippets_dir = '~/Projects/Snippets/julia'
+
+    au FileType julia let b:snippets_dir = '~/Snippets/julia'
 
 augroup End
 
@@ -361,7 +367,7 @@ augroup FileType python
     au FileType python let b:DD_call = '!python3 -m pydoc <TOKEN>'
     au FileType python nnoremap <buffer> K :DD<CR>
 
-    au FileType python let b:snippets_dir = '~/Projects/Snippets/python'
+    au FileType python let b:snippets_dir = '~/Snippets/python'
 augroup END
 
 
