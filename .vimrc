@@ -3,13 +3,15 @@
 " ------
 "  remove staged changed, but keep changes in working dir
 "    git restore --staged <filepath>
+
 "  discard changes in working dir (to last commit), with no affect on staging area
 "    git restore <filepath>
+
 "  Note: git add;git restore;git commit; results in the working directory
 "  being behind the latest commit. A subsequent git restore will handle this.
 "
 "  update last commit with latest staged changes
-"  git commit --amend
+"    git commit --amend
 
 " ------
 " some notes on useful keys
@@ -61,9 +63,8 @@ else
 endif
 
 " ------
-" syntax
+" filetype
 " ------
-syntax enable  " turn on syntax highlighting
 filetype plugin on
 
 " ------
@@ -202,12 +203,15 @@ call plug#end()
 " ------
 
 set termguicolors
-colorscheme gruvbox
 let hour = str2nr(strftime("%H"))
 if hour > 8 && hour < 19
-    set background=dark
-else
+    colorscheme wildcharm
     set background=light
+    syntax enable
+else
+    colorscheme wildcharm
+    set background=light
+    syntax enable
 endif
 
 " ------
@@ -364,7 +368,7 @@ augroup FileType python
         \['import\s\+\(\S\+\)\s\+as\s\+\(\S\+\)', {2:[1]}, 0],
         \['\(\S\+\)\s*:\s*\(\S\+\)\s*=', {1:[2]}, 1],
         \]
-    au FileType python let b:DD_call = '!python3 -m pydoc <TOKEN>'
+    au FileType python let b:DD_call = '!python -m pydoc <TOKEN>'
     au FileType python nnoremap <buffer> K :DD<CR>
 
     au FileType python let b:snippets_dir = '~/Snippets/python'
