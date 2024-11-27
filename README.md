@@ -20,6 +20,13 @@ alias fd='cd $(dirname $(fzf))'
     lg = log --graph --oneline
 ```
 
+## firefox wayland tweak
+
+in /etc/environment
+```
+MOZ_ENABLE_WAYLAND=1
+```
+
 ##  ~/.jupyter/jupyter_notebook_config.py
 
 change following settings to open with firefox, regardless of default browser
