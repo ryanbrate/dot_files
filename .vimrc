@@ -196,6 +196,7 @@ call plug#begin()
     Plug 'morhetz/gruvbox'
     Plug 'ryanbrate/functional.vim'
     Plug 'ryanbrate/developer_documentation.vim'
+    Plug 'vim/colorschemes'
 call plug#end()
 
 " ------
