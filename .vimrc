@@ -233,22 +233,6 @@ else
 endif
 
 " ------
-" working with tabs
-" ------
-nnoremap <Leader>to :tabnew<CR>
-nnoremap <Leader>tc :tabclose<CR>
-nnoremap <Leader>0 0gt
-nnoremap <Leader>1 1gt
-nnoremap <Leader>2 2gt
-nnoremap <Leader>3 3gt
-nnoremap <Leader>4 4gt
-nnoremap <Leader>5 5gt
-nnoremap <Leader>6 6gt
-nnoremap <Leader>7 7gt
-nnoremap <Leader>8 8gt
-nnoremap <Leader>9 9gt
-
-" ------
 " vimrc
 " ------
 nnoremap <Leader>we :e ~/dot_files/.vimrc<cr>
