@@ -193,7 +193,28 @@ command! -nargs=* VG exec len(split(<q-args>)) == 0?
 call plug#begin()
     Plug 'tpope/vim-commentary'
     Plug 'mbbill/undotree'
+    Plug 'yegappan/lsp'
 call plug#end()
+
+" ------
+" lsp
+" ------
+let lspOpts = #{autoHighlightDiags: v:true}
+autocmd User LspSetup call LspOptionsSet(lspOpts)
+
+"!pip install 'python-lsp-server[all]'
+let lspServers = [#{
+                 \   name: 'pylsp',
+                 \   filetype: 'python',
+                 \   path: system('which pylsp')[:-2],
+                 \   args: []
+                 \ }]
+autocmd User LspSetup call LspAddServer(lspServers)
+
+" keymaps borrowed from https://github.com/natebosch/vim-lsc
+nnoremap <C-]> :LspGotoDefinition<CR>
+nnoremap K :LspHover<CR>
+nnoremap gR :LspRename<CR>
 
 " ------
 " colorscheme
