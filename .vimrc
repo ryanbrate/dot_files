@@ -211,11 +211,6 @@ let lspServers = [#{
                  \ }]
 autocmd User LspSetup call LspAddServer(lspServers)
 
-" keymaps borrowed from https://github.com/natebosch/vim-lsc
-nnoremap <C-]> :LspGotoDefinition<CR>
-nnoremap K :LspHover<CR>
-nnoremap gR :LspRename<CR>
-
 " ------
 " colorscheme
 " ------
@@ -362,6 +357,12 @@ augroup FileType python
                 \]
 
     au FileType python let b:snippets_dir = '~/Snippets/python'
+
+    " lsp
+    au FileType python nnoremap <buffer> <C-]> :LspGotoDefinition<CR>
+    au FileType python nnoremap <buffer> K :LspHover<CR>
+    au FileType python nnoremap <buffer> gR :LspRename<CR>
+
 augroup END
 
 
