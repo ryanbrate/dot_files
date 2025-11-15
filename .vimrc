@@ -26,7 +26,7 @@
 "c-r  # accesses the register, e.g., to paste the contexts of a register ... c-r p 
 "
 "%s/someword//n  # get number of lines containng 'someword' 
-"%s/someword//gn  # get number instances containng 'someword' 
+"%s/someword//gn  # get number instances containg 'someword' 
 
 ":windo diffthis
 "do  # diff obtain, i.e., bring changes from other window into current
@@ -108,11 +108,16 @@ set noerrorbells  " disable sys beep
 
 
 " ------
-"  default code folding
+"  default code folding and saving/ loading folds
 " ------
-set foldmethod=manual
-set nofoldenable
+set foldmethod=indent
 set foldcolumn=2
+set foldlevel=0
+
+augroup AutoSave
+    au BufWrite,VimLeave,BufUnload * silent! mkview
+    au BufRead  * silent! loadview
+augroup END
 
 " -----
 " misc
@@ -141,6 +146,16 @@ set wildignorecase
 set autochdir
 set autoread
 set formatoptions+=j  " delete comment characters when joining files
+
+" ------
+" git integration
+" ------
+nnoremap <C-g>d :Gvdiffsplit<CR>
+
+" in window diff
+" ------
+nnoremap <C-w>d :windo diffthis<CR>
+
 
 " ------
 " completion
@@ -179,37 +194,83 @@ else
 endif
 
 " ------
-" setup vimgrep for quick <cword> search in current and sub-folders for the
-" current filetype
+" :VG [pattern]
 " ------
-command! -nargs=* VG exec len(split(<q-args>)) == 0?
-    \'vimgrep '..expand("<cword>")..' '..'**/*.'..expand('%:e')..'<CR>|copen'
-    \:
-    \'vimgrep '..<q-args>..' '..'**/*.'..expand('%:e')..'<CR>|copen'
+" If [pattern] is omitted, use <cword>.
+" Searches recursively; restricts to current buffer's extension if present.
+command! -nargs=* VG execute
+      \ 'vimgrep /' .
+      \ ( empty(<q-args>)
+      \     ? escape(expand('<cword>'), '\/')
+      \     : escape(<q-args>, '\/') ) .
+      \ '/ **/*' .
+      \ ( expand('%:e') != '' ? '.' . expand('%:e') : '' )
+      \ | copen
+
+
+" nohls
+nnoremap <leader><space> :nohls<CR>
 
 " ------
 " plugins
 " ------
 call plug#begin()
     Plug 'tpope/vim-commentary'
+    Plug 'tpope/vim-fugitive'
     Plug 'mbbill/undotree'
     Plug 'yegappan/lsp'
+    " Plug 'github/copilot.vim'
+    Plug 'ojroques/vim-oscyank', {'branch': 'main'}
+    Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+    Plug 'junegunn/fzf.vim'
+    Plug 'morhetz/gruvbox'
+    " Plug 'vim-airline/vim-airline'
+    Plug 'nordtheme/vim'
 call plug#end()
+
+" ------
+" fzf
+" ------
+nnoremap <leader>fu :Files ~/<CR>
+nnoremap <leader>fl :Files ./<CR>
+
+" ------
+" copilot
+" ------
+" imap <silent><script><expr> <c-n> copilot#Accept("\<CR>")
+" let g:copilot_no_tab_map = v:true
 
 " ------
 " lsp
 " ------
-let lspOpts = #{autoHighlightDiags: v:true}
+let lspOpts = #{ 
+    \ autoHighlightDiags: v:true,
+    \ showSignature: v:true,
+    \ showDiagWithFloat: v:true,
+\}
 autocmd User LspSetup call LspOptionsSet(lspOpts)
 
-"!pip install 'python-lsp-server[all]'
+"pip install 'python-lsp-server[all]'
 let lspServers = [#{
-                 \   name: 'pylsp',
-                 \   filetype: 'python',
-                 \   path: system('which pylsp')[:-2],
-                 \   args: []
-                 \ }]
+    \ name: 'pylsp',
+    \ filetype: 'python',
+    \ path: system('which pylsp')[:-2],
+    \ args: [],
+    \ workspaceConfig: #{
+    \   pylsp: #{
+    \     plugins: #{
+    \       pycodestyle: #{ ignore: ['E501', 'E226', 'W293']},
+    \       flake8: #{ enabled: v:false },
+    \     }
+    \   }
+    \ }
+ \}]
 autocmd User LspSetup call LspAddServer(lspServers)
+
+nnoremap <leader>d :LspDiagShow<CR>
+nnoremap <C-]> :LspGoToDefinition<CR>
+nnoremap gr :LspShowReference<CR>
+nnoremap gR :LspRename<CR>
 
 " ------
 " colorscheme
@@ -217,13 +278,16 @@ autocmd User LspSetup call LspAddServer(lspServers)
 
 set termguicolors
 let hour = str2nr(strftime("%H"))
-if hour > 8 && hour < 19
-    colorscheme wildcharm
-    set background=light
+if hour > 7 && hour < 19
+    colorscheme retrobox
+    set background=dark
+
+
+    " set background=dark
     syntax enable
 else
-    colorscheme wildcharm
-    set background=light
+    colorscheme retrobox
+    set background=dark
     syntax enable
 endif
 
@@ -231,6 +295,11 @@ endif
 " vimrc
 " ------
 nnoremap <Leader>we :e ~/dot_files/.vimrc<cr>
+
+" ------
+" bashrc
+" ------
+nnoremap <Leader>wz :e ~/.zshrc<cr>
 
 " ------
 " vimscript documentation
@@ -262,7 +331,7 @@ let s:hom = ["its", "it's",
             \"were", "we're", "where", 
             \"who's", "whose",
             \]
-command! Hom exec '/\(' .. join(s:hom, '\|') .. '\)' 
+command! Hom exec '/\(' .. join(s:hom, '\|') .. '\)'
 
 " highlight (likely unintended) repeated consecutive words
 command! RepeatedWords /\(\<\w\+\>\)\_s*\<\1\>
@@ -315,7 +384,7 @@ nnoremap <Leader>sn :call Snip()<CR>
 augroup VimEnter *
     " auto-source session.vim in current dir
     if argc() == 0 && filereadable('Session.vim')
-            au VimEnter * source Session.vim
+        au VimEnter * source Session.vim
     endif
 augroup End
 
@@ -332,18 +401,19 @@ augroup FileType vim
 augroup End
 
 
-augroup Filetype julia
-    au!
-    au Filetype julia setlocal colorcolumn=80
-    if filereadable('~/Projects/JuliaFormatterSysImage/julia_formatter.so')
-        au FileType julia let b:fixer_commands = [":!julia --threads=auto -J ~/Projects/JuliaFormatterSysImage/julia_formatter.so -e 'using JuliaFormatter; format_file(\"%\")'"]
-    else
-        au FileType julia let b:fixer_commands = [":!julia -e 'using JuliaFormatter;format_file(\"%\")'"]
-    endif
+" augroup Filetype julia
+"     au!
+"     au Filetype julia setlocal colorcolumn=80
+"     if filereadable('~/Projects/JuliaFormatterSysImage/julia_formatter.so')
+"         au FileType julia let b:fixer_commands = [":!julia --threads=auto -J ~/Projects/JuliaFormatterSysImage/julia_formatter.so -e 'using JuliaFormatter; format_file(\"%\")'"]
+"     else
+"         au FileType julia let b:fixer_commands = [":!julia -e 'using JuliaFormatter;format_file(\"%\")'"]
+"     endif
 
-    au FileType julia let b:snippets_dir = '~/Snippets/julia'
+"     au FileType julia let b:snippets_dir = '~/Snippets/julia'
 
-augroup End
+" augroup End
+
 
 augroup FileType python 
     au!
